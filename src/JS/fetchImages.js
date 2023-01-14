@@ -12,7 +12,7 @@ export default class FetchImagesApi {
     const BASE_URL =
       'https://pixabay.com/api/?key=32799595-4883f30010edd47462b21129f';
     const options = '&image_type=photo&orientation=horizontal&safesearch=true';
-    const url = `${BASE_URL}&q=${this.searchQuery}${options}&page=${this.page}&per_page=30`;
+    const url = `${BASE_URL}&q=${this.searchQuery}${options}&page=${this.page}&per_page=40`;
     try {
       const response = await axios.get(url);
       this.incrementPage();
