@@ -14,38 +14,62 @@ const refs = {
 const simpleLightBox = new SimpleLightbox('.gallery a', {});
 
 const fetchImagesApi = new FetchImagesApi();
-fetchImagesApi.fetchImages();
 
 refs.formEl.addEventListener('submit', onSubmit);
 refs.loadBtnEl.addEventListener('click', onClick);
+
+let totalHits = null;
+let imageElements = null;
+let arrHits = null;
 
 hiddenBtn();
 
 async function onSubmit(e) {
   e.preventDefault();
   clearMurkup();
-  fetchImagesApi.resetPage();
+  const inputFalue = e.currentTarget.elements.searchQuery.value.trim();
 
   fetchImagesApi.query = e.currentTarget.elements.searchQuery.value;
+  const respons = await fetchImagesApi.fetchImages();
+  totalHits = respons.data.totalHits;
+  arrHits = respons.data.hits;
+  console.log(FetchImagesApi.searchQuery);
+
   try {
-    const respons = await fetchImagesApi.fetchImages();
+    if (inputFalue) {
+      createMurkup(arrHits);
+      imageElements = refs.galleryEl.children.length;
+      unHiddenBtn();
+      simpleLightBox.refresh();
+    } else {
+      Notify.warning('Type something');
+    }
+  } catch (error) {
+    console.log(error);
+  }
+  if (imageElements === totalHits && arrHits.length) {
+    Notify.info(`"We're sorry, but you've reached the end of search results.`);
+    hiddenBtn();
+  }
+  isEmptyArrCheck(arrHits);
+}
+
+async function onClick() {
+  const respons = await fetchImagesApi.fetchImages();
+  totalHits = respons.data.totalHits;
+  try {
     const arrHits = respons.data.hits;
-    isEmptyArrCheck(arrHits);
+
     createMurkup(arrHits);
+    imageElements = refs.galleryEl.children.length;
+    unHiddenBtn();
     simpleLightBox.refresh();
   } catch (error) {
     console.log(error);
   }
-}
-
-async function onClick() {
-  try {
-    const respons = await fetchImagesApi.fetchImages();
-    const arrHits = respons.data.hits;
-    createMurkup(arrHits);
-    simpleLightBox.refresh();
-  } catch (error) {
-    console.log(error);
+  if (imageElements === totalHits) {
+    Notify.info(`"We're sorry, but you've reached the end of search results.`);
+    hiddenBtn();
   }
 }
 
@@ -97,13 +121,14 @@ function isEmptyArrCheck(arr) {
   if (!arr.length) {
     hiddenBtn();
     refs.inputEl.value = '';
+    console.log(arr.length);
 
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
     return;
   }
-  unHiddenBtn();
+  // unHiddenBtn();
 }
 function hiddenBtn() {
   refs.loadBtnEl.classList.add('is-hidden');
