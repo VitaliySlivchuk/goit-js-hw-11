@@ -17,7 +17,7 @@ export default class FetchImagesApi {
       'https://pixabay.com/api/?key=32799595-4883f30010edd47462b21129f';
     const optionsUrl =
       '&image_type=photo&orientation=horizontal&safesearch=true';
-    const url = `${BASE_URL}&q=${this.searchQuery}${optionsUrl}&page=${this.page}&per_page=100`;
+    const url = `${BASE_URL}&q=${this.searchQuery}${optionsUrl}&page=${this.page}&per_page=40`;
     try {
       const response = await axios.get(url);
       this.incrementPage();

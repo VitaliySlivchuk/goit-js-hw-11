@@ -27,20 +27,25 @@ hiddenBtn();
 async function onSubmit(e) {
   e.preventDefault();
   clearMurkup();
+  fetchImagesApi.resetPage();
   const inputFalue = e.currentTarget.elements.searchQuery.value.trim();
 
-  fetchImagesApi.query = e.currentTarget.elements.searchQuery.value;
+  fetchImagesApi.query = e.currentTarget.elements.searchQuery.value.trim();
   const respons = await fetchImagesApi.fetchImages();
   totalHits = respons.data.totalHits;
   arrHits = respons.data.hits;
-  console.log(FetchImagesApi.searchQuery);
 
   try {
     if (inputFalue) {
+      fetchImagesApi.resetPage();
       createMurkup(arrHits);
       imageElements = refs.galleryEl.children.length;
       unHiddenBtn();
       simpleLightBox.refresh();
+      fetchImagesApi.incrementPage();
+      if (totalHits > 0) {
+        Notify.success(`Hooray! We found ${totalHits} images.`);
+      }
     } else {
       Notify.warning('Type something');
     }
@@ -48,28 +53,29 @@ async function onSubmit(e) {
     console.log(error);
   }
   if (imageElements === totalHits && arrHits.length) {
-    Notify.info(`"We're sorry, but you've reached the end of search results.`);
     hiddenBtn();
+    Notify.info(`"We're sorry, but you've reached the end of search results.`);
   }
   isEmptyArrCheck(arrHits);
 }
 
 async function onClick() {
   const respons = await fetchImagesApi.fetchImages();
-  totalHits = respons.data.totalHits;
   try {
-    const arrHits = respons.data.hits;
-
+    totalHits = respons.data.totalHits;
+    console.log(totalHits);
+    arrHits = respons.data.hits;
     createMurkup(arrHits);
     imageElements = refs.galleryEl.children.length;
     unHiddenBtn();
     simpleLightBox.refresh();
   } catch (error) {
     console.log(error);
+    hiddenBtn();
   }
   if (imageElements === totalHits) {
-    Notify.info(`"We're sorry, but you've reached the end of search results.`);
     hiddenBtn();
+    Notify.info(`"We're sorry, but you've reached the end of search results.`);
   }
 }
 
@@ -121,15 +127,14 @@ function isEmptyArrCheck(arr) {
   if (!arr.length) {
     hiddenBtn();
     refs.inputEl.value = '';
-    console.log(arr.length);
 
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
     return;
   }
-  // unHiddenBtn();
 }
+
 function hiddenBtn() {
   refs.loadBtnEl.classList.add('is-hidden');
 }
