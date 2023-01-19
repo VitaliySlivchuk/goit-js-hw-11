@@ -29,6 +29,9 @@ async function onSubmit(e) {
   clearMurkup();
   fetchImagesApi.resetPage();
   const inputFalue = e.currentTarget.elements.searchQuery.value.trim();
+  if (!inputFalue) {
+    return;
+  }
 
   fetchImagesApi.query = e.currentTarget.elements.searchQuery.value.trim();
   const respons = await fetchImagesApi.fetchImages();
